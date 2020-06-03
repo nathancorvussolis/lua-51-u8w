@@ -15,14 +15,15 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{3AE073E5-4369-411C-8794-9BBC1BA462B9}"
 	ProjectSection(SolutionItems) = preProject
 		doc\contents.html = doc\contents.html
-		doc\index.css = doc\index.css
+		doc\cover.png = doc\cover.png
 		doc\logo.gif = doc\logo.gif
 		doc\lua.1 = doc\lua.1
 		doc\lua.css = doc\lua.css
+		doc\lua.html = doc\lua.html
 		doc\luac.1 = doc\luac.1
+		doc\luac.html = doc\luac.html
 		doc\manual.css = doc\manual.css
 		doc\manual.html = doc\manual.html
-		doc\osi-certified-72x60.png = doc\osi-certified-72x60.png
 		doc\readme.html = doc\readme.html
 	EndProjectSection
 EndProject
