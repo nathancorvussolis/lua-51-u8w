@@ -11,7 +11,6 @@
 #include <limits.h>
 #include <stddef.h>
 
-#include "lu8w.h"
 
 /*
 ** ==================================================================
@@ -758,7 +757,7 @@ union luai_Cast { double l_d; long l_l; };
 ** without modifying the main part of the file.
 */
 
-
+#include "lu8w.h"
 
 #endif
 

@@ -42,11 +42,7 @@ static int luaB_print (lua_State *L) {
       return luaL_error(L, LUA_QL("tostring") " must return a string to "
                            LUA_QL("print"));
     if (i>1) fputs("\t", stdout);
-#ifdef U8W_H
-    fprintf(stdout, "%s", s);
-#else
     fputs(s, stdout);
-#endif
     lua_pop(L, 1);  /* pop result */
   }
   fputs("\n", stdout);

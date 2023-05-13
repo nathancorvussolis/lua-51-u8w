@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <locale.h>
 
 #define luac_c
 #define LUA_CORE
@@ -185,70 +184,10 @@ static int pmain(lua_State* L)
 }
 
 #ifdef U8W_H
-void free_u8argv(int argc, char **argv) {
-  int i;
-  for(i = 0; i < argc; i++) {
-    if(argv && argv[i]) free(argv[i]);
-  }
-  if(argv) free(argv);
-}
-
-char **make_u8argv(int argc, wchar_t **wargv) {
-  int i;
-  char **argv = (char **)calloc(argc + 1, sizeof(void *));
-  if(argv == NULL) {
-    return NULL;
-  } else {
-    for(i = 0; i < argc; i++) {
-      argv[i] = u8wstos(wargv[i]);
-      if(argv[i] == NULL) {
-        free_u8argv(argc, argv);
-        return NULL;
-      }
-    }
-  }
-  return argv;
-}
-
-int wmain(int argc, wchar_t* wargv[])
-{
- char **argv, **cargv;
- lua_State* L;
- struct Smain s;
- int i, cargc;
-
- setlocale(LC_ALL, "");
-
- argv = make_u8argv(argc, wargv);
- if(argv == NULL) return EXIT_FAILURE;
- cargc = argc;
- cargv = argv;
-
- i=doargs(argc,argv);
- argc-=i; argv+=i;
- if (argc<=0) {
-  free_u8argv(cargc, cargv);
-  usage("no input files given");
- }
- L=lua_open();
- if (L==NULL) {
-  free_u8argv(cargc, cargv);
-  fatal("cannot create state: not enough memory");
- }
- s.argc=argc;
- s.argv=argv;
- if (lua_cpcall(L,pmain,&s)!=0) {
-  free_u8argv(cargc, cargv);
-  fatal(lua_tostring(L,-1));
- }
- lua_close(L);
-
- free_u8argv(cargc, cargv);
-
- return EXIT_SUCCESS;
-}
+int u8main(int argc, char *argv[])
 #else
 int main(int argc, char* argv[])
+#endif
 {
  lua_State* L;
  struct Smain s;
@@ -263,4 +202,15 @@ int main(int argc, char* argv[])
  lua_close(L);
  return EXIT_SUCCESS;
 }
-#endif /* U8W_H */
+
+#ifdef U8W_H
+int wmain(int argc, wchar_t *wargv[])
+{
+ setlocale(LC_ALL, "");
+ char **argv = make_u8argv(argc, wargv);
+ if (argv == NULL) return EXIT_FAILURE;
+ int e = u8main(argc, argv);
+ free_u8argv(argc, argv);
+ return e;
+}
+#endif

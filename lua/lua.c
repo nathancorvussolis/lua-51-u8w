@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <locale.h>
 
 #define lua_c
 
@@ -328,12 +327,10 @@ static int handle_luainit (lua_State *L) {
   const char *init = getenv(LUA_INIT);
   if (init == NULL) return 0;  /* status OK */
 #ifdef U8W_H
-  else if(init[0] == '@') {
-    d = dofile(L, init + 1);
-  }
-  else {
+  else if (init[0] == '@')
+    d = dofile(L, init+1);
+  else
     d = dostring(L, init, "=" LUA_INIT);
-  }
   free((void *)init);
   return d;
 #else
@@ -390,62 +387,10 @@ static int pmain (lua_State *L) {
 
 
 #ifdef U8W_H
-void free_u8argv(int argc, char **argv) {
-  int i;
-  for(i = 0; i < argc; i++) {
-    if(argv && argv[i]) free(argv[i]);
-  }
-  if(argv) free(argv);
-}
-
-char **make_u8argv(int argc, wchar_t **wargv) {
-  int i;
-  char **argv = (char **)calloc(argc + 1, sizeof(void *));
-  if(argv == NULL) {
-    return NULL;
-  } else {
-    for(i = 0; i < argc; i++) {
-      argv[i] = u8wstos(wargv[i]);
-      if(argv[i] == NULL) {
-        free_u8argv(argc, argv);
-        return NULL;
-      }
-    }
-  }
-  return argv;
-}
-
-int wmain(int argc, wchar_t **wargv) {
-  char **argv;
-  int status;
-  struct Smain s;
-  lua_State *L;
-
-  setlocale(LC_ALL, "");
-
-  argv = make_u8argv(argc, wargv);
-  if(argv == NULL) return EXIT_FAILURE;
-
-  L = lua_open();  /* create state */
-  if (L == NULL) {
-    l_message(argv[0], "cannot create state: not enough memory");
-
-    free_u8argv(argc, argv);
-
-    return EXIT_FAILURE;
-  }
-  s.argc = argc;
-  s.argv = argv;
-  status = lua_cpcall(L, &pmain, &s);
-  report(L, status);
-  lua_close(L);
-
-  free_u8argv(argc, argv);
-
-  return (status || s.status) ? EXIT_FAILURE : EXIT_SUCCESS;
-}
+int u8main (int argc, char **argv) {
 #else
 int main (int argc, char **argv) {
+#endif
   int status;
   struct Smain s;
   lua_State *L = lua_open();  /* create state */
@@ -460,4 +405,15 @@ int main (int argc, char **argv) {
   lua_close(L);
   return (status || s.status) ? EXIT_FAILURE : EXIT_SUCCESS;
 }
-#endif /* U8W_H */
+
+#ifdef U8W_H
+int wmain(int argc, wchar_t *wargv[])
+{
+  setlocale(LC_ALL, "");
+  char **argv = make_u8argv(argc, wargv);
+  if (argv == NULL) return EXIT_FAILURE;
+  int e = u8main(argc, argv);
+  free_u8argv(argc, argv);
+  return e;
+}
+#endif

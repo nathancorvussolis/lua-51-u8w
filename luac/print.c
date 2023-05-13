@@ -18,7 +18,9 @@
 #define PrintFunction	luaU_print
 
 #define Sizeof(x)	((int)sizeof(x))
+#ifdef VOID
 #undef VOID
+#endif
 #define VOID(p)		((const void*)(p))
 
 static void PrintString(const TString* ts)
